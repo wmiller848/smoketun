@@ -3,41 +3,32 @@ use "net"
 
 actor Main
   var _host: String = "127.0.0.1"
-  var _service: String = "51137"
+  var _service: String = "5050"
 
   new create(env:Env) =>
-    var options = Options(env)
+    var target_ip = ""
+    var target_port = ""
 
-    options
-    .add("target_ip", "i", StringArgument)
-    .add("target_port", "p", StringArgument)
+    let options = Options(env) +
+    ("ip", "i", StringArgument) +
+    ("port", "p", StringArgument)
 
-    for option in options do
-      env.out.print(option)
+    for opt in options do
+      match opt
+      | ("ip", let arg: String) => target_ip = arg
+      | ("port", let arg: String) => target_port = arg
+      end
     end
-    // env.out.print(options.has_argument())
-    // var args = env.args
-    // if args.size() > 0 then
-    //   for arg in args.values() do
-    //     try
-    //       var key_val = arg.split("=")
-    //       let value = key_val.pop()
-    //       let key = key_val.pop()
-    //
-    //       match key
-    //       | "target_ip" =>
-    //         _host = value
-    //         env.out.print("Target IP - " + _host)
-    //       | "target_port" =>
-    //         _service = value
-    //         env.out.print("Target Port - " + _service)
-    //       else
-    //         env.out.print("Unknown parameter - " + key)
-    //       end
-    //     end
-    //   end
-    //   env.out.print(_host + ":" + _service)
-    //   TCPListener(recover SmokeTCPListenNotify(env, 1) end, _host, _service, 0)
-    // else
-    //   env.out.print("Error")
-    // end
+
+    if target_ip == "" then
+      env.out.print("./smoketun --ip=127.0.0.1 --port=5050")
+      return
+    end
+
+    if target_port == "" then
+      env.out.print("./smoketun --ip=127.0.0.1 --port=5050")
+      return
+    end
+
+    env.out.print(target_ip + ":" + target_port)
+    TCPListener(recover SmokeTCPListenNotify(env, 1) end, _host, _service, 0)
